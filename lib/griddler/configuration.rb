@@ -73,7 +73,8 @@ module Griddler
         cloudmailin: Griddler::Adapters::CloudmailinAdapter,
         postmark: Griddler::Adapters::PostmarkAdapter,
         mandrill: Griddler::Adapters::MandrillAdapter,
-        mailgun: Griddler::Adapters::MailgunAdapter
+        mailgun: Griddler::Adapters::MailgunAdapter,
+        gust: Griddler::Adapters::GustAdapter
       }
     end
   end
