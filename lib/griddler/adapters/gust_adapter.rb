@@ -11,21 +11,10 @@ module Griddler
       end
 
       def normalize_params
-        if params.has_key?(:envelope)
-          {
-            to: params[:envelope][:to].split(','),
-            cc: ccs,
-            from: params[:envelope][:from],
-            subject: params[:headers][:Subject],
-            text: params[:plain],
-            attachments: params.fetch(:attachments) { [] },
-          }
+        if from_sendgrid?
+          SendgridAdapter.normalize_params(params)
         else
-          params.merge(
-            to: recipients(:to),
-            cc: recipients(:cc),
-            attachments: attachment_files,
-          )
+          CloudmailinAdapter.normalize_params(params)
         end
       end
 
@@ -33,21 +22,9 @@ module Griddler
 
       attr_reader :params
 
-      def recipients(key)
-        ( params[key] || '' ).split(',')
-      end
-
-      def attachment_files
-        params.delete('attachment-info')
-        attachment_count = params[:attachments].to_i
-
-        attachment_count.times.map do |index|
-          params.delete("attachment#{index + 1}".to_sym)
-        end
-      end
-
-      def ccs
-        params[:headers][:Cc].to_s.split(',').map(&:strip)
+      def from_sendgrid?
+        params["headers"].is_a?(String) &&
+          (params["headers"] =~ /Received: by .*\.sendgrid\.net /).present?
       end
     end
   end
